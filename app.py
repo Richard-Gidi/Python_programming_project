@@ -683,9 +683,8 @@ with tab2:
         textfont=dict(color="#e8eaf2"),
         hovertemplate="<b>%{y}</b><br>Severity ratio: %{x:.0%}<extra></extra>"
     ))
-    fig5.update_layout(**PLOTLY_LAYOUT, height=380,
-                       title="Countries with Deepest Crisis (Phase 4–5 Share of Phase 3+)",
-                       xaxis=dict(tickformat=".0%", gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")))
+    fig5.update_layout(**{**PLOTLY_LAYOUT, "xaxis": dict(tickformat=".0%", gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696"))}, height=380,
+                       title="Countries with Deepest Crisis (Phase 4–5 Share of Phase 3+)")
     st.plotly_chart(fig5, use_container_width=True)
 
 # ══════════════════════════════════════════════
