@@ -346,25 +346,23 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 📂 Data Source")
-    uploaded = st.file_uploader("Upload IPC_PHASE.csv", type=["csv"])
+    st.markdown("""
+    <div style='font-size:0.8rem;color:#6b7696;line-height:1.8'>
+    <b style='color:#e8b84b'>IPC Phases</b><br>
+    Phase 1 — Minimal<br>
+    Phase 2 — Stressed<br>
+    Phase 3 — Crisis ⚠️<br>
+    Phase 4 — Emergency 🔴<br>
+    Phase 5 — Catastrophe 🆘
+    </div>
+    """, unsafe_allow_html=True)
 
-    if not uploaded:
-        st.info("Upload your IPC Phase CSV to begin. The app expects the standard IPC Global data format.")
-        st.markdown("---")
-        st.markdown("""
-        <div style='font-size:0.8rem;color:#6b7696;line-height:1.8'>
-        <b style='color:#e8b84b'>IPC Phases</b><br>
-        Phase 1 — Minimal<br>
-        Phase 2 — Stressed<br>
-        Phase 3 — Crisis ⚠️<br>
-        Phase 4 — Emergency 🔴<br>
-        Phase 5 — Catastrophe 🆘
-        </div>
-        """, unsafe_allow_html=True)
+    DATA_PATH = os.path.join(os.path.dirname(__file__), "IPC_IPC_PHASE.csv")
+    if not os.path.exists(DATA_PATH):
+        st.error(f"Dataset not found at: {DATA_PATH}")
         st.stop()
 
-    wide_people, wide_pct = load_data(uploaded)
+    wide_people, wide_pct = load_data(DATA_PATH)
 
     all_countries = sorted(wide_pct["country"].unique())
     all_regions   = sorted(wide_pct["Region"].unique())
