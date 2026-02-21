@@ -869,21 +869,39 @@ with tab5:
     if len(stats) > 2:
         corr, p_corr = pearsonr(stats["mean"], stats["std"])
 
-        fig11 = px.scatter(
-            stats, x="mean", y="std",
-            color="Region",
-            color_discrete_sequence=COLOR_SEQ,
-            hover_name="country",
-            size="mean",
-            size_max=20,
-            labels={"mean":"Mean Phase 3+ (%)","std":"Volatility (Std Dev)"},
-            trendline="ols",
-            trendline_scope="overall",
-            trendline_color_override=GOLD,
-        )
-        fig11.update_traces(marker=dict(opacity=0.8, line=dict(width=1, color="#252b3b")))
+        fig11 = go.Figure()
+        # Plot each region as a separate trace
+        for i, region in enumerate(stats["Region"].unique()):
+            grp = stats[stats["Region"] == region]
+            fig11.add_trace(go.Scatter(
+                x=grp["mean"], y=grp["std"],
+                mode="markers",
+                name=region,
+                text=grp["country"],
+                marker=dict(
+                    size=grp["mean"].clip(5, 30),
+                    color=COLOR_SEQ[i % len(COLOR_SEQ)],
+                    opacity=0.85,
+                    line=dict(width=1, color="#252b3b"),
+                ),
+                hovertemplate="<b>%{text}</b><br>Mean: %{x:.1f}%<br>Std Dev: %{y:.2f}<extra></extra>",
+            ))
+        # Manual OLS trendline using numpy
+        x_vals = stats["mean"].values
+        y_vals = stats["std"].values
+        m, b = np.polyfit(x_vals, y_vals, 1)
+        x_line = np.linspace(x_vals.min(), x_vals.max(), 100)
+        fig11.add_trace(go.Scatter(
+            x=x_line, y=m * x_line + b,
+            mode="lines",
+            name="Trend",
+            line=dict(color=GOLD, width=2, dash="dash"),
+            hoverinfo="skip",
+        ))
         fig11.update_layout(**PLOTLY_LAYOUT, height=420,
-                            title="Volatility vs Average Severity in Phase 3+")
+                            title="Volatility vs Average Severity in Phase 3+",
+                            xaxis_title="Mean Phase 3+ (%)",
+                            yaxis_title="Volatility (Std Dev)")
         st.plotly_chart(fig11, use_container_width=True)
 
         c1, c2, c3 = st.columns(3)
@@ -930,9 +948,8 @@ with tab5:
         hoverongaps=False,
         hovertemplate="<b>%{y}</b><br>Year: %{x}<br>Phase 3+: %{z:.1f}%<extra></extra>",
         colorbar=dict(
-            title="Phase 3+ %",
+            title=dict(text="Phase 3+ %", font=dict(color="#a0a8c0")),
             tickfont=dict(color="#a0a8c0"),
-            titlefont=dict(color="#a0a8c0"),
             bgcolor="rgba(21,24,32,0.8)",
             bordercolor="#252b3b",
         )
