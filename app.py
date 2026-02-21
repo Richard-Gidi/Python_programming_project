@@ -541,10 +541,13 @@ with tab1:
 
     map_data = latest_pct[["iso3","country","crisis_plus_pct"]].dropna()
 
-    fig_map = px.choropleth(
-        map_data, locations="iso3", color="crisis_plus_pct",
-        hover_name="country",
-        color_continuous_scale=[
+    clim = float(map_data["crisis_plus_pct"].quantile(0.97))
+    fig_map = go.Figure(go.Choropleth(
+        locations=map_data["iso3"],
+        z=map_data["crisis_plus_pct"],
+        text=map_data["country"],
+        hovertemplate="<b>%{text}</b><br>Phase 3+: %{z:.1f}%<extra></extra>",
+        colorscale=[
             [0,   "#1c2030"],
             [0.2, "#3a5a4a"],
             [0.4, "#8ab34a"],
@@ -552,12 +555,28 @@ with tab1:
             [0.8, "#d97a2a"],
             [1.0, "#d94f4f"],
         ],
-        range_color=(0, map_data["crisis_plus_pct"].quantile(0.97)),
-        labels={"crisis_plus_pct": "Phase 3+ (%)"},
-    )
+        zmin=0,
+        zmax=clim,
+        colorbar=dict(
+            title=dict(text="Phase 3+ %", font=dict(color="#a0a8c0")),
+            tickfont=dict(color="#a0a8c0"),
+            bgcolor="rgba(21,24,32,0.8)",
+            bordercolor="#252b3b",
+            borderwidth=1,
+        ),
+        marker_line_color="#252b3b",
+        marker_line_width=0.5,
+    ))
     fig_map.update_layout(
-        **PLOTLY_MAP_LAYOUT,
         height=420,
+        paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=0, r=0, t=45, b=0),
+        title=dict(
+            text="World Map: Phase 3+ Severity (%)",
+            font=dict(family="DM Serif Display, serif", color="#e8eaf2", size=18)
+        ),
+        font=dict(family="DM Sans, sans-serif", color="#a0a8c0"),
+        hoverlabel=dict(bgcolor="#1c2030", bordercolor="#252b3b", font=dict(color="#e8eaf2")),
         geo=dict(
             bgcolor="rgba(0,0,0,0)",
             showframe=False,
@@ -568,13 +587,6 @@ with tab1:
             showlakes=True, lakecolor="#0d0f14",
             showcountries=True, countrycolor="#252b3b",
         ),
-        coloraxis_colorbar=dict(
-            title="Phase 3+ %",
-            tickfont=dict(color="#a0a8c0"),
-            titlefont=dict(color="#a0a8c0"),
-            bgcolor="rgba(21,24,32,0.8)",
-            bordercolor="#252b3b",
-        )
     )
     st.plotly_chart(fig_map, use_container_width=True)
 
