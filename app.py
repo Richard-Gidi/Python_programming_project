@@ -233,7 +233,7 @@ hr {
 # ─────────────────────────────────────────────
 # PLOTLY THEME
 # ─────────────────────────────────────────────
-PLOTLY_LAYOUT = dict(
+_BASE_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(family="DM Sans, sans-serif", color="#a0a8c0", size=12),
@@ -242,11 +242,20 @@ PLOTLY_LAYOUT = dict(
         bgcolor="rgba(21,24,32,0.8)", bordercolor="#252b3b", borderwidth=1,
         font=dict(color="#a0a8c0")
     ),
-    xaxis=dict(gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")),
-    yaxis=dict(gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")),
     margin=dict(l=20, r=20, t=50, b=20),
     hoverlabel=dict(bgcolor="#1c2030", bordercolor="#252b3b", font=dict(color="#e8eaf2")),
 )
+
+_AXIS_STYLE = dict(
+    xaxis=dict(gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")),
+    yaxis=dict(gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")),
+)
+
+# Full layout with axes (for cartesian charts)
+PLOTLY_LAYOUT = {**_BASE_LAYOUT, **_AXIS_STYLE}
+
+# Map-safe layout without xaxis/yaxis (for choropleth/geo charts)
+PLOTLY_MAP_LAYOUT = {**_BASE_LAYOUT}
 
 GOLD = "#e8b84b"
 CRIMSON = "#d94f4f"
@@ -547,7 +556,7 @@ with tab1:
         labels={"crisis_plus_pct": "Phase 3+ (%)"},
     )
     fig_map.update_layout(
-        **PLOTLY_LAYOUT,
+        **PLOTLY_MAP_LAYOUT,
         height=420,
         geo=dict(
             bgcolor="rgba(0,0,0,0)",
@@ -664,7 +673,7 @@ with tab2:
     ))
     fig5.update_layout(**PLOTLY_LAYOUT, height=380,
                        title="Countries with Deepest Crisis (Phase 4–5 Share of Phase 3+)",
-                       xaxis=dict(tickformat=".0%", **PLOTLY_LAYOUT.get("xaxis",{})))
+                       xaxis=dict(tickformat=".0%", gridcolor="#1c2030", zerolinecolor="#252b3b", tickfont=dict(color="#6b7696")))
     st.plotly_chart(fig5, use_container_width=True)
 
 # ══════════════════════════════════════════════
